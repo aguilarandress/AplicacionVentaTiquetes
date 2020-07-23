@@ -6,9 +6,6 @@ import ventatiquetes.models.Bloque;
 import ventatiquetes.models.PresentacionCartelera;
 import ventatiquetes.views.MainView;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,9 +25,7 @@ public class MainController {
         this.mainView.setVisible();
         // Set action listeners
         this.mainView.getBuscarCarteleraBtn().addActionListener(new BuscarCarteleraListener());
-        // Set table listener
-        this.mainView.getCarteleraTable().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.mainView.getCarteleraTable().getSelectionModel().addListSelectionListener(new RowCarteleraSelectionListener());
+        this.mainView.getObtenerPreciosCarteleraBtn().addActionListener(new ObtenerPreciosCarteleraListener());
     }
 
     /**
@@ -73,27 +68,30 @@ public class MainController {
         }
     }
 
-    private class RowCarteleraSelectionListener implements ListSelectionListener {
+    /**
+     * Listener para cuando se bucan los precios de los bloques
+     */
+    private class ObtenerPreciosCarteleraListener implements ActionListener {
         @Override
-        public void valueChanged(ListSelectionEvent e) {
-            // TODO: Este evento se llame dos veces por alguna razon
-            // Get selected row
-            int filaSeleccionada = mainView.getCarteleraTable().getSelectedRow();
-            // Obtener id de la produccion
-            int produccionId = presentaciones.get(filaSeleccionada).getProduccionId();
-            // Obtener los precios de los bloques
-            PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
-            presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
-            ArrayList<Bloque> bloquePrecios = presentacionesCarteleraJDBC.getBloquePreciosByProduccionId(produccionId);
-            Object filas[][] = new Object[bloquePrecios.size()][2];
-            for (int i = 0; i < bloquePrecios.size(); i++) {
-                filas[i][0] = bloquePrecios.get(i).getNombre();
-                filas[i][1] = bloquePrecios.get(i).getPrecio();
+        public void actionPerformed(ActionEvent e) {
+            // Verificar que una fila este seleccionada
+            if (mainView.getCarteleraTable().getSelectedRow() != -1) {
+                int filaSeleccionada = mainView.getCarteleraTable().getSelectedRow();
+                // Obtener id de la produccion
+                int produccionId = presentaciones.get(filaSeleccionada).getProduccionId();
+                // Obtener los precios de los bloques
+                PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
+                presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Bloque> bloquePrecios = presentacionesCarteleraJDBC.getBloquePreciosByProduccionId(produccionId);
+                Object filas[][] = new Object[bloquePrecios.size()][2];
+                for (int i = 0; i < bloquePrecios.size(); i++) {
+                    filas[i][0] = bloquePrecios.get(i).getNombre();
+                    filas[i][1] = bloquePrecios.get(i).getPrecio();
+                }
+                String columnNames[] = new String[] {"Bloque", "Precio"};
+                DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
+                mainView.getBloquePreciosTable().setModel(tableModel);
             }
-            String columnNames[] = new String[] {"Bloque", "Precio"};
-            DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
-            mainView.getBloquePreciosTable().setModel(tableModel);
         }
     }
-
 }
