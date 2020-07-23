@@ -5,6 +5,9 @@ import ventatiquetes.jdbc.PresentacionesCarteleraJDBC;
 import ventatiquetes.models.PresentacionCartelera;
 import ventatiquetes.views.MainView;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +27,9 @@ public class MainController {
         this.mainView.setVisible();
         // Set action listeners
         this.mainView.getBuscarCarteleraBtn().addActionListener(new BuscarCarteleraListener());
+        // Set table listener
+        this.mainView.getCarteleraTable().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.mainView.getCarteleraTable().getSelectionModel().addListSelectionListener(new RowCarteleraSelectionListener());
     }
 
     /**
@@ -63,6 +69,22 @@ public class MainController {
             "Fecha", "Hora", "Estado", "Descripcion"};
             DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
             mainView.getCarteleraTable().setModel(tableModel);
+        }
+    }
+
+    private class RowCarteleraSelectionListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            // TODO: Este evento se llame dos veces por alguna razon
+            // Get selected row
+            int filaSeleccionada = mainView.getCarteleraTable().getSelectedRow();
+            // Obtener id de la produccion
+            int produccionId = presentaciones.get(filaSeleccionada).getProduccionId();
+
+//            String columnNames[] = new String[] {"Produccion", "Teatro", "Tipo",
+//                    "Fecha", "Hora", "Estado", "Descripcion"};
+//            DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
+//            mainView.getBloquePreciosTable().setModel(tableModel);
         }
     }
 

@@ -13,6 +13,8 @@ public class MainView {
     private JTable carteleraTable;
     private JButton buscarCarteleraBtn;
     private JScrollPane carteleraScrollPane;
+    private JTable bloquePreciosTable;
+    private JScrollPane bloquePreciosScrollPane;
     private JDateChooser fechaInicialChooser = new JDateChooser();
     private JDateChooser fechaFinallChooser = new JDateChooser();
 
@@ -53,5 +55,9 @@ public class MainView {
 
     public JTable getCarteleraTable() {
         return carteleraTable;
+    }
+
+    public JTable getBloquePreciosTable() {
+        return bloquePreciosTable;
     }
 }

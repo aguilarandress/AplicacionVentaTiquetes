@@ -1,6 +1,7 @@
 package ventatiquetes.jdbc;
 
 import ventatiquetes.daos.PresentacionesCarteleraDAO;
+import ventatiquetes.models.Bloque;
 import ventatiquetes.models.PresentacionCartelera;
 
 import java.sql.Connection;
@@ -26,6 +27,12 @@ public class PresentacionesCarteleraJDBC implements PresentacionesCarteleraDAO {
         this.connection = connection;
     }
 
+    /**
+     * Obtiene las presentaciones de la cartelera por fecha
+     * @param fechaInicial La fecha inicial
+     * @param fechaFinal La fecha final
+     * @return Las presentaciones de la cartelera
+     */
     @Override
     public ArrayList<PresentacionCartelera> getPresentacionesCarteleraByFechas(Date fechaInicial, Date fechaFinal) {
         try {
@@ -57,4 +64,29 @@ public class PresentacionesCarteleraJDBC implements PresentacionesCarteleraDAO {
         return null;
     }
 
+    /**
+     * Obtiene los precios de cada bloque de una produccion
+     * @param produccionId el id de la produccion
+     * @return Los precios de los bloques
+     */
+    @Override
+    public ArrayList<Bloque> getBloquePreciosByProduccionId(int produccionId) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("EXEC GetByIdProduccionBloquePrecios ?");
+            preparedStatement.setInt(1, produccionId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            // Get results
+            ArrayList<Bloque> bloques = new ArrayList<>();
+            while (resultSet.next()) {
+                Bloque bloque = new Bloque();
+                bloque.setPrecio(resultSet.getDouble("Monto"));
+                bloque.setNombre(resultSet.getString("Nombre"));
+                bloques.add(bloque);
+            }
+            return bloques;
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
