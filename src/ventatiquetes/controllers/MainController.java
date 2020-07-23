@@ -2,6 +2,7 @@ package ventatiquetes.controllers;
 
 import ventatiquetes.database.DatabaseConnection;
 import ventatiquetes.jdbc.PresentacionesCarteleraJDBC;
+import ventatiquetes.models.Bloque;
 import ventatiquetes.models.PresentacionCartelera;
 import ventatiquetes.views.MainView;
 
@@ -80,11 +81,18 @@ public class MainController {
             int filaSeleccionada = mainView.getCarteleraTable().getSelectedRow();
             // Obtener id de la produccion
             int produccionId = presentaciones.get(filaSeleccionada).getProduccionId();
-
-//            String columnNames[] = new String[] {"Produccion", "Teatro", "Tipo",
-//                    "Fecha", "Hora", "Estado", "Descripcion"};
-//            DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
-//            mainView.getBloquePreciosTable().setModel(tableModel);
+            // Obtener los precios de los bloques
+            PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
+            presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Bloque> bloquePrecios = presentacionesCarteleraJDBC.getBloquePreciosByProduccionId(produccionId);
+            Object filas[][] = new Object[bloquePrecios.size()][2];
+            for (int i = 0; i < bloquePrecios.size(); i++) {
+                filas[i][0] = bloquePrecios.get(i).getNombre();
+                filas[i][1] = bloquePrecios.get(i).getPrecio();
+            }
+            String columnNames[] = new String[] {"Bloque", "Precio"};
+            DefaultTableModel tableModel = new DefaultTableModel(filas, columnNames);
+            mainView.getBloquePreciosTable().setModel(tableModel);
         }
     }
 
