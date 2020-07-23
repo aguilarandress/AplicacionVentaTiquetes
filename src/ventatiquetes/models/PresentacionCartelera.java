@@ -14,6 +14,8 @@ public class PresentacionCartelera {
 
     public PresentacionCartelera() { }
 
+
+
     public String getNombreProduccion() {
         return nombreProduccion;
     }

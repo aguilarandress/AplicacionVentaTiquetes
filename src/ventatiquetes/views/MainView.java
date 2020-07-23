@@ -12,6 +12,7 @@ public class MainView {
     private JPanel fechaFinalJPanel;
     private JTable carteleraTable;
     private JButton buscarCarteleraBtn;
+    private JScrollPane carteleraScrollPane;
     private JDateChooser fechaInicialChooser = new JDateChooser();
     private JDateChooser fechaFinallChooser = new JDateChooser();
 
