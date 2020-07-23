@@ -34,6 +34,11 @@ public class MainView {
         this.frame.setVisible(true);
     }
 
+    public void displayMessage(String message, boolean success) {
+        JOptionPane.showMessageDialog(this.frame, message, success ? "EXITO" : "ERROR",
+                success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+    }
+
     public JDateChooser getFechaInicialChooser() {
         return fechaInicialChooser;
     }

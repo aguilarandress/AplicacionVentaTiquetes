@@ -26,20 +26,27 @@ public class MainController {
         this.mainView.getBuscarCarteleraBtn().addActionListener(new BuscarCarteleraListener());
     }
 
+    /**
+     * Event listener para cuando se busca en la cartelera
+     */
     private class BuscarCarteleraListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             // Obtener fechas
             Date fechaInicial = mainView.getFechaInicialChooser().getDate();
             Date fechaFinal = mainView.getFechaFinallChooser().getDate();
-            // TODO: Validar la entrada de las fechas
-            // TODO: Validar rango de fechas correcto
+            // Validar que las fechas sean validas
+            if (fechaInicial == null || fechaFinal == null || fechaInicial.compareTo(fechaFinal) > 0) {
+                mainView.displayMessage("Fechas invalidas", false);
+                return;
+            }
             // Obtener presentaciones de la cartelera
             PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
             presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
             presentaciones = presentacionesCarteleraJDBC.getPresentacionesCarteleraByFechas(fechaInicial, fechaFinal);
             if (presentaciones.size() == 0) {
-                // TODO: Desplegar mensaje
+                mainView.displayMessage("No se encontraron presentaciones en estas fechas", false);
+                return;
             }
             // Crear tabla
             Object filas[][] = new Object[presentaciones.size()][7];
