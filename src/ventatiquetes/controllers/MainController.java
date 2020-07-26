@@ -46,6 +46,10 @@ public class MainController {
 
         this.mainView.getComboBloqueAsientos().addItemListener(new ConsultaTeatroBloqueListener());
 
+        this.mainView.getComboFilaAsientos().addItemListener(new ConsultaTeatroFilaListener());
+
+        this.mainView.getTablaPresAsientos().setEnabled(true);
+        this.mainView.getTablaPresAsientos().setEnabled(true);
     }
 
     /**
@@ -202,6 +206,24 @@ public class MainController {
                 mainView.getTablaAsientosAsientos().setModel(model5);
                 mainView.getTablaProdAsientos().setEnabled(false);
                 mainView.getTablaPresAsientos().setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Listener para cargar los asientos disponibles en base a la combinación de producción,presentación ,bloque y fila
+     */
+    private class ConsultaTeatroFilaListener implements  ItemListener {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                Fila fila = (Fila) mainView.getComboFilaAsientos().getSelectedItem();
+                Presentacion presentacion = (Presentacion) mainView.getTablaPresAsientos().getValueAt(mainView.getTablaPresAsientos().getSelectedRow(),0);
+                TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+                teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Asiento> asientos = teatrosJDBC.getAsientosByFila(fila,presentacion);
+                ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
+                mainView.getTablaAsientosAsientos().setModel(model);
             }
         }
     }
