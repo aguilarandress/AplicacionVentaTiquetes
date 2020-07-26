@@ -2,11 +2,15 @@ package ventatiquetes.controllers;
 
 import ventatiquetes.database.DatabaseConnection;
 import ventatiquetes.jdbc.PresentacionesCarteleraJDBC;
+import ventatiquetes.jdbc.PresentacionesJDBC;
 import ventatiquetes.jdbc.ProduccionesJDBC;
 import ventatiquetes.models.*;
 import ventatiquetes.views.MainView;
 import ventatiquetes.mappers.*;
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +35,9 @@ public class MainController {
         this.mainView.getObtenerPreciosCarteleraBtn().addActionListener(new ObtenerPreciosCarteleraListener());
         // Listeners para conultar asientos disponibles
         this.mainView.getTeatroComboAsientos().addItemListener(new ConsultaTeatroListener());
+        this.mainView.getTablaProdAsientos().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        ListSelectionModel selectionModel = this.mainView.getTablaProdAsientos().getSelectionModel();
+        selectionModel.addListSelectionListener(new ConsultaTeatroProdsListener());
     }
 
     /**
@@ -127,5 +134,25 @@ public class MainController {
         }
     }
 
-    
+    /**
+     * Listener para cargar presentaciones en base a una presentacion
+     */
+    private class ConsultaTeatroProdsListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if(mainView.getTablaProdAsientos().getRowCount()>0) {
+                Produccion produccion = (Produccion) mainView.getTablaProdAsientos().getValueAt(mainView.getTablaProdAsientos().getSelectedRow(), 0);
+                PresentacionesJDBC presentacionesJDBC = new PresentacionesJDBC();
+                presentacionesJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Presentacion> presentacions = presentacionesJDBC.getPresentByProdIdView(produccion);
+                ModelTablaProd model = TablaPresenMapper.mapRows(presentacions);
+                mainView.getTablaPresAsientos().setModel(model);
+                mainView.getComboBloqueAsientos().removeAllItems();
+                mainView.getComboFilaAsientos().removeAllItems();
+                ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+                mainView.getTablaAsientosAsientos().setModel(model5);
+
+            }
+        }
+    }
 }
