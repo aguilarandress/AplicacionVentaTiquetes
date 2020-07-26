@@ -4,6 +4,7 @@ import ventatiquetes.database.DatabaseConnection;
 import ventatiquetes.jdbc.PresentacionesCarteleraJDBC;
 import ventatiquetes.jdbc.PresentacionesJDBC;
 import ventatiquetes.jdbc.ProduccionesJDBC;
+import ventatiquetes.jdbc.TeatrosJDBC;
 import ventatiquetes.models.*;
 import ventatiquetes.views.MainView;
 import ventatiquetes.mappers.*;
@@ -42,6 +43,9 @@ public class MainController {
         this.mainView.getTablaPresAsientos().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectionModel = this.mainView.getTablaPresAsientos().getSelectionModel();
         selectionModel.addListSelectionListener(new ConsultaTeatroPresentListener());
+
+        this.mainView.getComboBloqueAsientos().addItemListener(new ConsultaTeatroBloqueListener());
+
     }
 
     /**
@@ -160,12 +164,15 @@ public class MainController {
         }
     }
 
+    /**
+     * Listener para cargar bloques en base a una producción-presentación
+     */
     private class ConsultaTeatroPresentListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent e) {
             if(mainView.getTablaPresAsientos().getRowCount()>0)
             {
-                Presentacion presentacion = (Presentacion) mainView.getTablaPresAsientos().getValueAt(agentView.getTablaPresAsientos().getSelectedRow(),0);
+                Presentacion presentacion = (Presentacion) mainView.getTablaPresAsientos().getValueAt(mainView.getTablaPresAsientos().getSelectedRow(),0);
                 PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
                 presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
                 ArrayList<Bloque> bloques = presentacionesCarteleraJDBC.getBloquePreciosByProduccionId(presentacion.getId());
@@ -174,6 +181,27 @@ public class MainController {
                 mainView.getComboFilaAsientos().removeAllItems();
                 ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
                 mainView.getTablaAsientosAsientos().setModel(model5);
+            }
+        }
+    }
+
+    /**
+     * Listener para cargar filas en base a un bloque
+     */
+    private class ConsultaTeatroBloqueListener implements ItemListener {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                Bloque bloque = (Bloque) mainView.getComboBloqueAsientos().getSelectedItem();
+                TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+                teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Fila> filas = teatrosJDBC.getFilasByBloque(bloque);
+                mainView.getComboFilaAsientos().removeAllItems();
+                TablaFilasMapper.mapRows(filas,mainView.getComboFilaAsientos());
+                ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+                mainView.getTablaAsientosAsientos().setModel(model5);
+                mainView.getTablaProdAsientos().setEnabled(false);
+                mainView.getTablaPresAsientos().setEnabled(false);
             }
         }
     }
