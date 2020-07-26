@@ -38,6 +38,10 @@ public class MainController {
         this.mainView.getTablaProdAsientos().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel selectionModel = this.mainView.getTablaProdAsientos().getSelectionModel();
         selectionModel.addListSelectionListener(new ConsultaTeatroProdsListener());
+
+        this.mainView.getTablaPresAsientos().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        selectionModel = this.mainView.getTablaPresAsientos().getSelectionModel();
+        selectionModel.addListSelectionListener(new ConsultaTeatroPresentListener());
     }
 
     /**
@@ -152,6 +156,24 @@ public class MainController {
                 ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
                 mainView.getTablaAsientosAsientos().setModel(model5);
 
+            }
+        }
+    }
+
+    private class ConsultaTeatroPresentListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if(mainView.getTablaPresAsientos().getRowCount()>0)
+            {
+                Presentacion presentacion = (Presentacion) mainView.getTablaPresAsientos().getValueAt(agentView.getTablaPresAsientos().getSelectedRow(),0);
+                PresentacionesCarteleraJDBC presentacionesCarteleraJDBC = new PresentacionesCarteleraJDBC();
+                presentacionesCarteleraJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Bloque> bloques = presentacionesCarteleraJDBC.getBloquePreciosByProduccionId(presentacion.getId());
+                mainView.getComboBloqueAsientos().removeAllItems();
+                TablaBloquePreciosMapper.mapRows(bloques,mainView.getComboBloqueAsientos());
+                mainView.getComboFilaAsientos().removeAllItems();
+                ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+                mainView.getTablaAsientosAsientos().setModel(model5);
             }
         }
     }
