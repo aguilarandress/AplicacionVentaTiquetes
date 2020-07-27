@@ -65,6 +65,10 @@ public class MainController {
         this.mainView.getComboBLQ().addItemListener(new CompraTeatroBloqueListener());
 
         this.mainView.getComboFl().addItemListener(new CompraTeatroFilaListener());
+
+        this.mainView.getTablaAsientos().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        this.mainView.getBoletosButton().addActionListener(new CompraBoletosBtnListener());
     }
 
     private class ChangeTabListener implements ChangeListener {
@@ -398,11 +402,11 @@ public class MainController {
         }
     }
 
+    /**
+     * Listener para cargar los asientos disponibles en base a la combinación de producción,presentación ,bloque y fila
+     */
     private class CompraTeatroFilaListener implements  ItemListener {
-        /**
-         * Listener para cargar los asientos disponibles en base a la combinación de producción,presentación ,bloque y fila
-         * @param e
-         */
+
         @Override
         public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -415,6 +419,62 @@ public class MainController {
                 ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
                 mainView.getTablaAsientos().setModel(model);
             }
+        }
+    }
+
+    /**
+     * Realiza el proceso de añadir asientos a una reservación
+     */
+    private class CompraBoletosBtnListener implements ActionListener
+    {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int [] selectedRows = mainView.getTablaAsientos().getSelectedRows();
+            if(mainView.getTablaAsientos().getRowCount() < 1)
+            {
+                mainView.displayMessage("No hay asientos seleccionados",false);
+                return;
+            }
+            else if (selectedRows.length == 0)
+            {
+                mainView.displayMessage("No hay asientos seleccionados",false);
+                return;
+            }
+            else if  (mainView.getValoresLista().getSize()+selectedRows.length > 8)
+            {
+                mainView.displayMessage("La cantidad de asientos supera el máximo de 8",false);
+                return;
+            }
+            boolean repetido = false;
+            for (int i=0 ; i<selectedRows.length ; i++)
+            {
+                repetido=false;
+                Asiento asiento = (Asiento) mainView.getTablaAsientos().getValueAt(selectedRows[i],0);
+                for(int o=0 ; o<mainView.getValoresLista().getSize() ;o++ )
+                {
+                    Asiento asiento2 = (Asiento) mainView.getValoresLista().get(o);
+                    if (asiento.getBloqueId() == asiento2.getBloqueId() && asiento.getFilaId().equals(asiento2.getFilaId())
+                            && asiento.getAsientoId() == asiento2.getAsientoId())
+                    {
+                        repetido=true;
+
+                    }
+                }
+                if (repetido)
+                    continue;
+                Produccion produccion =  (Produccion)(mainView.getTablaProds().getValueAt(mainView.getTablaProds().getSelectedRow(),0));
+                TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+                teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+                Bloque bloque = teatrosJDBC.getBloquePreciosByIDS(asiento.getBloqueId(),produccion.getId());
+                mainView.setMontoTotal(mainView.getMontoTotal()+bloque.getPrecio());
+                mainView.getValoresLista().addElement(asiento);
+            }
+            if (repetido)
+            {
+                mainView.displayMessage("No se agregaron los asientos repetidos",false);
+            }
+
         }
     }
 }

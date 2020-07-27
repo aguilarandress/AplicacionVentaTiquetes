@@ -51,6 +51,7 @@ public class MainView {
     private JPanel comprarBoletos;
     private JDateChooser fechaInicialChooser = new JDateChooser();
     private JDateChooser fechaFinallChooser = new JDateChooser();
+    private DefaultListModel valoresLista;
 
     public MainView() {
         this.frame = new JFrame("Publico General");
@@ -63,6 +64,9 @@ public class MainView {
         this.fechaFinallChooser.setDateFormatString("yyyy-MM-dd");
         this.fechaFinalJPanel.add(fechaFinallChooser);
         this.frame.setSize(700, 500);
+        DefaultListModel model =new DefaultListModel();
+        this.listaAsientos.setModel(model);
+        this.valoresLista= model;
     }
 
     public void setVisible() {
@@ -182,8 +186,8 @@ public class MainView {
         return totalL;
     }
 
-    public JLabel getMontoTotal() {
-        return montoTotal;
+    public Double getMontoTotal() {
+        return Double.parseDouble(montoTotal.getText());
     }
 
     public JComboBox getComboBLQ() {
@@ -196,5 +200,11 @@ public class MainView {
 
     public JPanel getComprarBoletos() {
         return comprarBoletos;
+    }
+
+    public DefaultListModel getValoresLista() { return valoresLista; }
+
+    public void setMontoTotal(Double montoTotal) {
+        this.montoTotal.setText(montoTotal.toString());
     }
 }
