@@ -37,9 +37,20 @@ public class MainView {
     private JLabel bloquesAsientosDisponiblesLabel;
     private JLabel filasAsientosDisponiblesLabel;
     private JLabel asientosAsientosDisponiblesLabel;
+    private JComboBox comboTeatros;
+    private JTable tablaProds;
+    private JTable tablaPresent;
+    private JTable tablaAsientos;
+    private JList listaAsientos;
+    private JButton BoletosButton;
+    private JButton realizarCompraButton;
+    private JLabel totalL;
+    private JLabel montoTotal;
+    private JComboBox comboBLQ;
+    private JComboBox comboFl;
+    private JPanel comprarBoletos;
     private JDateChooser fechaInicialChooser = new JDateChooser();
     private JDateChooser fechaFinallChooser = new JDateChooser();
-
 
     public MainView() {
         this.frame = new JFrame("Publico General");
@@ -129,5 +140,61 @@ public class MainView {
         ) {
             this.teatroComboAsientos.addItem(t);
         }
+    }
+
+    public void setComboTeatros(ArrayList<Teatro> teatros)
+    {
+        for (Teatro t:teatros
+        ) {
+            this.comboTeatros.addItem(t);
+        }
+    }
+
+    public JComboBox getComboTeatros() {
+        return comboTeatros;
+    }
+
+    public JTable getTablaProds() {
+        return tablaProds;
+    }
+
+    public JTable getTablaPresent() {
+        return tablaPresent;
+    }
+
+    public JTable getTablaAsientos() {
+        return tablaAsientos;
+    }
+
+    public JList getListaAsientos() {
+        return listaAsientos;
+    }
+
+    public JButton getBoletosButton() {
+        return BoletosButton;
+    }
+
+    public JButton getRealizarCompraButton() {
+        return realizarCompraButton;
+    }
+
+    public JLabel getTotalL() {
+        return totalL;
+    }
+
+    public JLabel getMontoTotal() {
+        return montoTotal;
+    }
+
+    public JComboBox getComboBLQ() {
+        return comboBLQ;
+    }
+
+    public JComboBox getComboFl() {
+        return comboFl;
+    }
+
+    public JPanel getComprarBoletos() {
+        return comprarBoletos;
     }
 }
