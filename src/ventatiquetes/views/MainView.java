@@ -2,11 +2,15 @@ package ventatiquetes.views;
 
 import javax.swing.*;
 import com.toedter.calendar.JDateChooser;
+import ventatiquetes.models.Teatro;
+
+import java.util.ArrayList;
 
 public class MainView {
+    // Consultar cartelera
     private JFrame frame;
     private JPanel mainJPanel;
-    private JTabbedPane consultarCarteleraTab;
+    private JTabbedPane tabbedPane;
     private JLabel consultarCarteleraTitle;
     private JPanel fechaInicialJPanel;
     private JPanel fechaFinalJPanel;
@@ -16,6 +20,23 @@ public class MainView {
     private JTable bloquePreciosTable;
     private JScrollPane bloquePreciosScrollPane;
     private JButton obtenerPreciosCarteleraBtn;
+    private JPanel consultarCarteleraTab;
+    // Constular asientos disponibles
+    private JPanel ConsultaAsientos;
+    private JComboBox teatroComboAsientos;
+    private JScrollPane HolderProdAsientos;
+    private JTable tablaProdAsientos;
+    private JTable tablaPresAsientos;
+    private JTable tablaAsientosAsientos;
+    private JComboBox comboBloqueAsientos;
+    private JComboBox comboFilaAsientos;
+    private JLabel consultarAsientosTitle;
+    private JLabel teatroAsientosDisponiblesLabel;
+    private JLabel produccionAsientosDisponiblesLabel;
+    private JLabel presentacionesAsientosDisponiblesLabel;
+    private JLabel bloquesAsientosDisponiblesLabel;
+    private JLabel filasAsientosDisponiblesLabel;
+    private JLabel asientosAsientosDisponiblesLabel;
     private JDateChooser fechaInicialChooser = new JDateChooser();
     private JDateChooser fechaFinallChooser = new JDateChooser();
 
@@ -42,6 +63,10 @@ public class MainView {
                 success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
 
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
+
     public JDateChooser getFechaInicialChooser() {
         return fechaInicialChooser;
     }
@@ -64,5 +89,45 @@ public class MainView {
 
     public JButton getObtenerPreciosCarteleraBtn() {
         return obtenerPreciosCarteleraBtn;
+    }
+
+    public JPanel getConsultaAsientos() {
+        return ConsultaAsientos;
+    }
+
+    public JComboBox getTeatroComboAsientos() {
+        return teatroComboAsientos;
+    }
+
+    public JScrollPane getHolderProdAsientos() {
+        return HolderProdAsientos;
+    }
+
+    public JTable getTablaProdAsientos() {
+        return tablaProdAsientos;
+    }
+
+    public JTable getTablaPresAsientos() {
+        return tablaPresAsientos;
+    }
+
+    public JTable getTablaAsientosAsientos() {
+        return tablaAsientosAsientos;
+    }
+
+    public JComboBox getComboBloqueAsientos() {
+        return comboBloqueAsientos;
+    }
+
+    public JComboBox getComboFilaAsientos() {
+        return comboFilaAsientos;
+    }
+
+    public void setComboTeatrosAsientos(ArrayList<Teatro> teatros)
+    {
+        for (Teatro t:teatros
+        ) {
+            this.teatroComboAsientos.addItem(t);
+        }
     }
 }
