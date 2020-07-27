@@ -3,8 +3,10 @@ package ventatiquetes.controllers;
 import ventatiquetes.database.DatabaseConnection;
 import ventatiquetes.jdbc.*;
 import ventatiquetes.models.*;
+import ventatiquetes.validators.ClienteValidator;
 import ventatiquetes.views.MainView;
 import ventatiquetes.mappers.*;
+import ventatiquetes.views.FormularioCliente;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -25,6 +27,7 @@ import java.util.Date;
 public class MainController {
 
     private MainView mainView;
+    FormularioCliente formularioCliente;
     private ArrayList<PresentacionCartelera> presentaciones = new ArrayList<>();
 
     public MainController() {
@@ -69,6 +72,7 @@ public class MainController {
         this.mainView.getTablaAsientos().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.mainView.getBoletosButton().addActionListener(new CompraBoletosBtnListener());
+        this.mainView.getRealizarCompraButton().addActionListener(new CompraDatosBtnListener());
     }
 
     private class ChangeTabListener implements ChangeListener {
@@ -475,6 +479,100 @@ public class MainController {
                 mainView.displayMessage("No se agregaron los asientos repetidos",false);
             }
 
+        }
+    }
+
+    private class CompraDatosBtnListener implements  ActionListener
+    {
+        /**
+         * Encargado de mostrar el formulario de datos del cliente
+         * @param e
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(!(mainView.getValoresLista().getSize()>0))
+            {
+                mainView.displayMessage("Debe agregar asientos",false);
+                return;
+            }
+            FormularioCliente view = new FormularioCliente();
+            view.setVisible();
+            formularioCliente=view;
+            formularioCliente.getComprarButton().addActionListener(new ComprarFinalBtn());
+        }
+    }
+
+    private class ComprarFinalBtn implements ActionListener
+    {
+        /**
+         * Obtiene todos los datos del cliente y realiza la transacción
+         * @param e
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            Reservacion reservacion = new Reservacion();
+            reservacion.setNombreCliente(formularioCliente.getNombre().getText());
+            reservacion.setCorreo(formularioCliente.getCorreo().getText());
+            reservacion.setTelefono(formularioCliente.getTelefono().getText());
+            reservacion.setEfectivo(true);
+            if(!formularioCliente.esEfectivo())
+            {
+                reservacion.setNumeroTarjeta(formularioCliente.getTarjeta().getText());
+                try
+                {
+                    reservacion.setCVC(Integer.parseInt(formularioCliente.getCvc().getText()));
+                }
+                catch (Exception o)
+                {
+                    reservacion.setCVC(0);
+                }
+                reservacion.setExpiracion(formularioCliente.getDate().getDate());
+                reservacion.setEfectivo(false);
+            }
+            reservacion.setMonto((Double) mainView.getMontoTotal()) ;
+            Produccion produccion = (Produccion) mainView.getTablaProds().getValueAt(mainView.getTablaProds().getSelectedRow(),0);
+            Presentacion presentacion = (Presentacion) mainView.getTablaPresent().getValueAt(mainView.getTablaPresent().getSelectedRow(),0);
+            ArrayList<String> errores = ClienteValidator.validarCliente(reservacion);
+            ArrayList<Asiento> asientos = new ArrayList<Asiento>();
+            for (int i = 0 ; i < mainView.getValoresLista().getSize();i++)
+            {
+                asientos.add((Asiento) mainView.getValoresLista().getElementAt(i));
+            }
+            if(errores.size()>0)
+            {
+                formularioCliente.displayMessage(errores.get(0),false);
+                return;
+            }
+            Object[] resultados;
+            AgentesJDBC agentesJDBC = new AgentesJDBC();
+            agentesJDBC.setConnection(DatabaseConnection.getConnection());
+            if(!reservacion.isEfectivo()) {
+                resultados = agentesJDBC.procesarCompraTarjeta(reservacion, asientos, produccion.getId(), presentacion.getPresentId());
+                if ((Boolean)resultados[0]) {
+                    mainView.displayMessage("Compra exitosa, número de orden: "+(Integer)resultados[1],true);
+                } else {
+                    mainView.displayMessage("Tarjeta rechazada , por favor verifique que cuente con el dinero necesario",false);
+                }
+            }
+            else {
+                resultados = agentesJDBC.procesarCompraEfectivo(reservacion,asientos,produccion.getId(),presentacion.getPresentId());
+                mainView.displayMessage("Compra exitosa, número de orden: "+(Integer)resultados[1],true);
+            }
+            //Limpieza tablas
+            ModelTablaProd model= TablaProdMapper.mapRows(new ArrayList<Produccion>());
+            mainView.getTablaProds().setModel(model);
+            ModelTablaProd model2 = TablaPresenMapper.mapRows(new ArrayList<Presentacion>());
+            mainView.getTablaPresent().setModel(model2);
+            mainView.getComboBLQ().removeAllItems();
+            mainView.getComboFl().removeAllItems();
+            ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+            mainView.getTablaAsientos().setModel(model5);
+            formularioCliente.cerrar();
+            mainView.getValoresLista().clear();
+            mainView.setMontoTotal(0.0);
+            mainView.getTablaProds().setEnabled(true);
+            mainView.getTablaPresent().setEnabled(true);
         }
     }
 }
