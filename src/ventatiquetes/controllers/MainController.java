@@ -1,10 +1,7 @@
 package ventatiquetes.controllers;
 
 import ventatiquetes.database.DatabaseConnection;
-import ventatiquetes.jdbc.PresentacionesCarteleraJDBC;
-import ventatiquetes.jdbc.PresentacionesJDBC;
-import ventatiquetes.jdbc.ProduccionesJDBC;
-import ventatiquetes.jdbc.TeatrosJDBC;
+import ventatiquetes.jdbc.*;
 import ventatiquetes.models.*;
 import ventatiquetes.views.MainView;
 import ventatiquetes.mappers.*;
@@ -60,6 +57,14 @@ public class MainController {
         this.mainView.getTablaProds().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectionModel = this.mainView.getTablaProds().getSelectionModel();
         selectionModel.addListSelectionListener(new CompraTeatroProdsListener());
+
+        this.mainView.getTablaPresent().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        selectionModel = this.mainView.getTablaPresent().getSelectionModel();
+        selectionModel.addListSelectionListener(new CompraTeatroPresentListener());
+
+        this.mainView.getComboBLQ().addItemListener(new CompraTeatroBloqueListener());
+
+        this.mainView.getComboFl().addItemListener(new CompraTeatroFilaListener());
     }
 
     private class ChangeTabListener implements ChangeListener {
@@ -344,6 +349,71 @@ public class MainController {
                 mainView.getComboFl().removeAllItems();
                 ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
                 mainView.getTablaAsientos().setModel(model5);
+            }
+        }
+    }
+
+    /**
+     * Listener para cargar bloques en base a una producción-presentación
+     */
+    private class CompraTeatroPresentListener implements  ListSelectionListener {
+
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+
+            if(mainView.getTablaPresent().getRowCount()>0)
+            {
+                Presentacion presentacion = (Presentacion) mainView.getTablaPresent().getValueAt(mainView.getTablaPresent().getSelectedRow(),0);
+                AgentesJDBC agentesJDBC = new AgentesJDBC();
+                agentesJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Bloque> bloques = agentesJDBC.getBloquePreciosByProdId(presentacion.getId());
+                mainView.getComboBLQ().removeAllItems();
+                TablaBloquePreciosMapper.mapRows(bloques,mainView.getComboBLQ());
+                mainView.getComboFl().removeAllItems();
+                ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+                mainView.getTablaAsientos().setModel(model5);
+            }
+        }
+    }
+
+    private class CompraTeatroBloqueListener implements  ItemListener {
+        /**
+         * Listener para cargar filas en base a un bloque
+         * @param e
+         */
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                Bloque bloque = (Bloque) mainView.getComboBLQ().getSelectedItem();
+                TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+                teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Fila> filas = teatrosJDBC.getFilasByBloque(bloque);
+                mainView.getComboFl().removeAllItems();
+                TablaFilasMapper.mapRows(filas,mainView.getComboFl());
+                ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+                mainView.getTablaAsientos().setModel(model5);
+                mainView.getTablaProds().setEnabled(false);
+                mainView.getTablaPresent().setEnabled(false);
+            }
+        }
+    }
+
+    private class CompraTeatroFilaListener implements  ItemListener {
+        /**
+         * Listener para cargar los asientos disponibles en base a la combinación de producción,presentación ,bloque y fila
+         * @param e
+         */
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+
+                Fila fila = (Fila) mainView.getComboFl().getSelectedItem();
+                Presentacion presentacion = (Presentacion) mainView.getTablaPresent().getValueAt(mainView.getTablaPresent().getSelectedRow(),0);
+                TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+                teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+                ArrayList<Asiento> asientos = teatrosJDBC.getAsientosByFila(fila,presentacion);
+                ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
+                mainView.getTablaAsientos().setModel(model);
             }
         }
     }
