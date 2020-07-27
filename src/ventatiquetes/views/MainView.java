@@ -2,6 +2,9 @@ package ventatiquetes.views;
 
 import javax.swing.*;
 import com.toedter.calendar.JDateChooser;
+import ventatiquetes.models.Teatro;
+
+import java.util.ArrayList;
 
 public class MainView {
     // Consultar cartelera
@@ -60,6 +63,10 @@ public class MainView {
                 success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
 
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
+
     public JDateChooser getFechaInicialChooser() {
         return fechaInicialChooser;
     }
@@ -114,5 +121,13 @@ public class MainView {
 
     public JComboBox getComboFilaAsientos() {
         return comboFilaAsientos;
+    }
+
+    public void setComboTeatrosAsientos(ArrayList<Teatro> teatros)
+    {
+        for (Teatro t:teatros
+        ) {
+            this.teatroComboAsientos.addItem(t);
+        }
     }
 }

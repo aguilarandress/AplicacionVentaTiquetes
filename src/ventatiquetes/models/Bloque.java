@@ -4,10 +4,19 @@ public class Bloque {
     private int id;
     private String nombre;
     private int idTeatro;
+    private int idProd;
     private double precio;
 
     public Bloque() {
 
+    }
+
+    public int getIdProd() {
+        return idProd;
+    }
+
+    public void setIdProd(int idProd) {
+        this.idProd = idProd;
     }
 
     public int getId() {
