@@ -9,10 +9,7 @@ import ventatiquetes.mappers.*;
 import ventatiquetes.views.FormularioCliente;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,6 +70,15 @@ public class MainController {
 
         this.mainView.getBoletosButton().addActionListener(new CompraBoletosBtnListener());
         this.mainView.getRealizarCompraButton().addActionListener(new CompraDatosBtnListener());
+
+        // Popup listeners
+        this.mainView.getComboTeatros().addPopupMenuListener(new CompraTeatroListener2());
+        this.mainView.getComboBLQ().addPopupMenuListener(new CompraTeatroBloqueListener2());
+        this.mainView.getComboFl().addPopupMenuListener(new CompraTeatroFilaListener2());
+        this.mainView.getTeatroComboAsientos().addPopupMenuListener(new ConsultaTeatroListener2());
+        this.mainView.getComboBloqueAsientos().addPopupMenuListener(new ConsultaTeatroBloqueListener2());
+        this.mainView.getComboFilaAsientos().addPopupMenuListener(new ConsultaTeatroFilaListener2());
+
     }
 
     private class ChangeTabListener implements ChangeListener {
@@ -573,6 +579,179 @@ public class MainController {
             mainView.setMontoTotal(0.0);
             mainView.getTablaProds().setEnabled(true);
             mainView.getTablaPresent().setEnabled(true);
+        }
+    }
+
+    // POP UP LISTENERS
+    private class CompraTeatroListener2 implements PopupMenuListener
+    {
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Teatro teatro = (Teatro) mainView.getComboTeatros().getSelectedItem();
+            ProduccionesJDBC produccionesJDBC = new ProduccionesJDBC();
+            produccionesJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Produccion> producciones = produccionesJDBC.getProdTIdView(teatro.getId());
+            ModelTablaProd model = TablaProdMapper.mapRows(producciones);
+            mainView.getTablaProds().setModel(model);
+            ModelTablaProd model2 = TablaPresenMapper.mapRows(new ArrayList<Presentacion>());
+            mainView.getTablaPresent().setModel(model2);
+            mainView.getComboBLQ().removeAllItems();
+            mainView.getComboFl().removeAllItems();
+            ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+            mainView.getTablaAsientos().setModel(model5);
+            mainView.getTablaProds().setEnabled(true);
+            mainView.getTablaPresent().setEnabled(true);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
+        }
+    }
+
+    private class CompraTeatroBloqueListener2 implements  PopupMenuListener
+    {
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Bloque bloque = (Bloque) mainView.getComboBLQ().getSelectedItem();
+            TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+            teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Fila> filas = teatrosJDBC.getFilasByBloque(bloque);
+            mainView.getComboFl().removeAllItems();
+            TablaFilasMapper.mapRows(filas,mainView.getComboFl());
+            ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+            mainView.getTablaAsientos().setModel(model5);
+            mainView.getTablaProds().setEnabled(false);
+            mainView.getTablaPresent().setEnabled(false);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
+        }
+    }
+
+    private class CompraTeatroFilaListener2 implements PopupMenuListener
+    {
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Fila fila = (Fila) mainView.getComboFl().getSelectedItem();
+            Presentacion presentacion = (Presentacion) mainView.getTablaPresent().getValueAt(mainView.getTablaPresent().getSelectedRow(),0);
+            TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+            teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Asiento> asientos = teatrosJDBC.getAsientosByFila(fila,presentacion);
+            ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
+            mainView.getTablaAsientos().setModel(model);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
+        }
+    }
+
+    private class ConsultaTeatroListener2 implements PopupMenuListener
+    {
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Teatro teatro = (Teatro) mainView.getTeatroComboAsientos().getSelectedItem();
+            ProduccionesJDBC produccionesJDBC = new ProduccionesJDBC();
+            produccionesJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList <Produccion> producciones = produccionesJDBC.getProdTIdView(teatro.getId());
+            ModelTablaProd model= TablaProdMapper.mapRows(producciones);
+            mainView.getTablaProdAsientos().setModel(model);
+            ModelTablaProd model2 = TablaPresenMapper.mapRows(new ArrayList<Presentacion>());
+            mainView.getTablaPresAsientos().setModel(model2);
+            mainView.getComboBloqueAsientos().removeAllItems();
+            mainView.getComboFilaAsientos().removeAllItems();
+            ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+            mainView.getTablaAsientosAsientos().setModel(model5);
+            mainView.getTablaProdAsientos().setEnabled(true);
+            mainView.getTablaPresAsientos().setEnabled(true);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
+        }
+    }
+
+    private class ConsultaTeatroBloqueListener2 implements  PopupMenuListener
+    {
+
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Bloque bloque = (Bloque) mainView.getComboBloqueAsientos().getSelectedItem();
+            TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+            teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Fila> filas = teatrosJDBC.getFilasByBloque(bloque);
+            mainView.getComboFilaAsientos().removeAllItems();
+            TablaFilasMapper.mapRows(filas,mainView.getComboFilaAsientos());
+            ModelTablaProd model5 = TablaAsientosMapper.mapRows(new ArrayList<Asiento>());
+            mainView.getTablaAsientosAsientos().setModel(model5);
+            mainView.getTablaProdAsientos().setEnabled(false);
+            mainView.getTablaPresAsientos().setEnabled(false);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
+        }
+    }
+
+    private class ConsultaTeatroFilaListener2 implements PopupMenuListener
+    {
+
+
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Fila fila = (Fila) mainView.getComboFilaAsientos().getSelectedItem();
+            Presentacion presentacion = (Presentacion) mainView.getTablaPresAsientos().getValueAt(mainView.getTablaPresAsientos().getSelectedRow(),0);
+            TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
+            teatrosJDBC.setConnection(DatabaseConnection.getConnection());
+            ArrayList<Asiento> asientos = teatrosJDBC.getAsientosByFila(fila,presentacion);
+            ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
+            mainView.getTablaAsientosAsientos().setModel(model);
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+
         }
     }
 }
