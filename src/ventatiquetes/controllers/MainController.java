@@ -311,9 +311,6 @@ public class MainController {
                 TeatrosJDBC teatrosJDBC = new TeatrosJDBC();
                 teatrosJDBC.setConnection(DatabaseConnection.getConnection());
                 ArrayList<Asiento> asientos = teatrosJDBC.getAsientosByFila(fila,presentacion);
-                for (int i = 0; i < asientos.size(); i++) {
-                    System.out.println(asientos.get(i).getAsientoId());
-                }
                 ModelTablaProd model = TablaAsientosMapper.mapRows(asientos);
                 mainView.getTablaAsientosAsientos().setModel(model);
             }
